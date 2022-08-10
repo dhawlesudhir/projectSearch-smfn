@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CategoriesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CategoriesRepository::class)]
@@ -24,6 +26,14 @@ class Categories
 
     #[ORM\Column]
     private ?bool $status = null;
+
+    #[ORM\ManyToMany(targetEntity: Resources::class, inversedBy: 'categories')]
+    private Collection $Resources;
+
+    public function __construct()
+    {
+        $this->Resources = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -74,6 +84,30 @@ class Categories
     public function setStatus(bool $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Resources>
+     */
+    public function getResources(): Collection
+    {
+        return $this->Resources;
+    }
+
+    public function addResource(Resources $resource): self
+    {
+        if (!$this->Resources->contains($resource)) {
+            $this->Resources->add($resource);
+        }
+
+        return $this;
+    }
+
+    public function removeResource(Resources $resource): self
+    {
+        $this->Resources->removeElement($resource);
 
         return $this;
     }

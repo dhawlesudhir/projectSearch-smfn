@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ResourcesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ResourcesRepository::class)]
@@ -27,6 +29,14 @@ class Resources
 
     #[ORM\Column(length: 50)]
     private ?string $route = null;
+
+    #[ORM\ManyToMany(targetEntity: Categories::class, mappedBy: 'Resources')]
+    private Collection $categories;
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -89,6 +99,33 @@ class Resources
     public function setRoute(string $route): self
     {
         $this->route = $route;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Categories>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Categories $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addResource($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Categories $category): self
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeResource($this);
+        }
 
         return $this;
     }
